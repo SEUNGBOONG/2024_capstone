@@ -14,25 +14,6 @@ import MyComponent from "./MyComponent";
 const App = () => {
   const [goalPercentage, setGoalPercentage] = useState(0); // 목표 활동량 달성률 상태
 
-  // const tabImageStyle = {
-  //   width: "80%",
-  //   height: "80%",
-  //   margin: "7px",
-    
-  // };
-
-  // const handleRingImageClick = () => {
-  //   // Bluetooth로 아두이노에 'f' 명령 전송
-  //   sendCommandToArduino("f");
-  // };
-
-  // const sendCommandToArduino = (command) => {
-  //   // 아두이노와의 Bluetooth 통신을 위한 코드
-  //   const bluetoothSerial = new window.SerialPort("COM1", { baudRate: 9600 }); // 시리얼 포트 연결
-  //   bluetoothSerial.write(command); // 명령 전송
-  //   bluetoothSerial.close(); // 포트 닫기
-  // };
-
   const dimageClick = () => {
     window.location.href = "./exercise";
   };
@@ -56,7 +37,6 @@ const App = () => {
           <div style={{ display: "flex", alignItems: "center" , justifyContent: "center"}}>
             <Title>
               오늘의 목표 활동량의 <br></br>
-
               <Typography variant="inherit" style={{ color: "blue" }}>
                 {goalPercentage}%
               </Typography>
@@ -64,12 +44,15 @@ const App = () => {
             </Title>
             <img src={Detail} alt="detail" style={dimage} onClick={dimageClick} />
           </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {/* RingImage를 가운데 정렬 */}
-            {/* <img src={RingImage} alt="Ring" style={tabImageStyle} onClick={handleRingImageClick} /> */}
-
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", margin:"30px", marginLeft:"10px" }}>
+          
              <MyComponent />
-          </div>
+          </div> 
+
+         {/* <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+             <img src={RingImage} alt="Ring" style={tabImageStyle} onClick={handleRingImageClick} /> 
+
+          </div> */}
         </SignupFormContainer>
       </Container>
     </div>

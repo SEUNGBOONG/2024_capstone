@@ -7,8 +7,10 @@ import exerciseImage from "../styles/exercise.png"; // 이미지 import
 const Exercise = ({ setGoalPercentage }) => {
   const [exerciseData, setExerciseData] = useState([]);
   const [totalCalories, setTotalCalories] = useState(0); // 총 칼로리
+  const [displayedPercentage, setDisplayedPercentage] = useState(0); // 목표 달성률 표시용 상태
   const chartRef = useRef(null); // 라인 차트를 저장할 ref
   const doughnutRef = useRef(null); // 원 그래프를 저장할 ref
+  const targetCalories = 500; // 목표 칼로리 (임시)
 
   // 데이터를 불러오는 비동기 함수
   const fetchData = async () => {
@@ -23,10 +25,9 @@ const Exercise = ({ setGoalPercentage }) => {
   };
 
   const calculateAchievementPercentage = useCallback(() => {
-    const targetCalories = 500; // 목표 칼로리 (임시)
     const percentage = (totalCalories / targetCalories) * 100;
-    return percentage.toFixed(1); // 소수점 2자리까지 표시
-  }, [totalCalories]); // totalCalories에 의존
+    return parseFloat(percentage.toFixed(1)); // 소수점 1자리까지 표시
+  }, [totalCalories, targetCalories]); // totalCalories와 targetCalories에 의존
 
   useEffect(() => {
     const fetchExerciseData = async () => {
@@ -50,6 +51,23 @@ const Exercise = ({ setGoalPercentage }) => {
 
     fetchExerciseData(); // 데이터를 불러오는 함수 호출
   }, [setGoalPercentage, calculateAchievementPercentage]); // setGoalPercentage와 calculateAchievementPercentage를 의존성 배열에 추가
+
+  useEffect(() => {
+    const targetPercentage = calculateAchievementPercentage();
+    const intervalId = setInterval(() => {
+      setDisplayedPercentage((prevPercentage) => {
+        if (prevPercentage >= targetPercentage) {
+          clearInterval(intervalId);
+          return targetPercentage;
+        }
+        return Math.min(parseFloat((prevPercentage + 0.0001).toFixed(4)), targetPercentage);
+      });
+    }, 1); // 0.001초마다 업데이트
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [exerciseData, calculateAchievementPercentage]);
 
   useEffect(() => {
     // exerciseData가 변경될 때마다 실행되는 useEffect
@@ -96,33 +114,35 @@ const Exercise = ({ setGoalPercentage }) => {
           },
         },
       });
+    }
+  }, [exerciseData]);
 
-      // 원 그래프 생성
-      const doughnutCtx = document.getElementById("caloriesChart");
-      if (doughnutRef.current) {
-        doughnutRef.current.destroy(); // 이전 차트 제거
-      }
-      doughnutRef.current = new Chart(doughnutCtx, {
-        type: "doughnut",
-        data: {
-          labels: ["소비 칼로리", "목표 칼로리"],
-          datasets: [{
-            label: "칼로리 소비량",
-            data: [totalCalories, 500], // 목표 칼로리 (임시)
-            backgroundColor: ["#36a2eb", "#ff6384"],
-          }],
-        },
-        options: {
-          plugins: {
-            legend: {
-              display: true,
-              position: "bottom",
-            },
+  useEffect(() => {
+    // 원 그래프 생성
+    const doughnutCtx = document.getElementById("caloriesChart");
+    if (doughnutRef.current) {
+      doughnutRef.current.destroy(); // 이전 차트 제거
+    }
+    doughnutRef.current = new Chart(doughnutCtx, {
+      type: "doughnut",
+      data: {
+        labels: ["소비 칼로리", "목표 칼로리"],
+        datasets: [{
+          label: "칼로리 소비량",
+          data: [totalCalories * (displayedPercentage / 100), targetCalories - totalCalories * (displayedPercentage / 100)], // 목표 칼로리 (임시)
+          backgroundColor: ["#36a2eb", "#ff6384"],
+        }],
+      },
+      options: {
+        plugins: {
+          legend: {
+            display: true,
+            position: "bottom",
           },
         },
-      });
-    }
-  }, [exerciseData, totalCalories]); // exerciseData 또는 totalCalories가 변경될 때마다 실행
+      },
+    });
+  }, [displayedPercentage, totalCalories]);
 
   return (
     <Container>
@@ -140,7 +160,7 @@ const Exercise = ({ setGoalPercentage }) => {
         {/* 목표 달성률 표시 코드 (그래프 아래에 표시) */}
         {exerciseData.length > 0 && (
           <>
-            <p style={{ marginTop: 20 }}>목표 달성률: {calculateAchievementPercentage()}%</p>
+            <p style={{ marginTop: 20 }}>목표 달성률: {displayedPercentage}%</p>
             <div style={{ display: "flex", alignItems: "center", width: "240px", marginTop: 20 }}>
               <canvas id="caloriesChart" width={200} height={200}></canvas>
               <img src={exerciseImage} alt="exercise" style={{ width: 170, height: 150, marginLeft: 5 }} />

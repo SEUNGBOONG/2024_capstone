@@ -1,32 +1,24 @@
-import React, { useState } from "react";
-import { Button, Grid } from "@material-ui/core";
+import React, { useState, useEffect } from "react";
+import { Button, Grid, CircularProgress } from "@material-ui/core";
 
-const MyComponent = () => {
+const App = () => {
   const [bluetoothDevice, setBluetoothDevice] = useState(null);
   const [characteristic, setCharacteristic] = useState(null);
+  const [progress, setProgress] = useState(0); // 초기 달성률은 0으로 설정
 
-  // const connectToDevice = async () => {
-  //   try {
-  //     const device = await navigator.bluetooth.requestDevice({
-  //       filters: [{ services: ['00001101-0000-1000-8000-00805f9b34fb'] }],
-  //     });
+  useEffect(() => {
+    const timer = setInterval(() => {
+      // 시간당 0.0001씩 달성률 증가
+      setProgress((prevProgress) => (prevProgress >= 100 ? 100 : prevProgress + 0.0001));
+    }, 3600000); // 1시간(3600초)마다 실행
 
-  //     const server = await device.gatt.connect();
-  //     const service = await server.getPrimaryService('00001101-0000-1000-8000-00805f9b34fb');
-  //     const char = await service.getCharacteristic('00001101-0000-1000-8000-00805f9b34fb');
-
-  //     setBluetoothDevice(device);
-  //     setCharacteristic(char);
-
-  //     console.log('Bluetooth Device connected:', device.name);
-  //   } catch (error) {
-  //     console.error('Bluetooth connection error:', error);
-  //   }
-  // };
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   const sendDataToArduino = async () => {
     if (!bluetoothDevice || !characteristic) {
-
       console.error('Bluetooth device or characteristic not set.');
       return;
     }
@@ -38,17 +30,6 @@ const MyComponent = () => {
       console.error('Error sending data to Arduino:', error);
     }
   };
-
-  // const handleBluetoothButtonClick = async () => {
-  //   try {
-  //     const device = await navigator.bluetooth.requestDevice({
-  //       filters: [{ services: ["4번 결과 값"] }]
-  //     });
-  //     console.log('Bluetooth device selected:', device);
-  //   } catch (error) {
-  //     console.error('Bluetooth device selection error:', error);
-  //   }
-  // };
 
   return (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "300px" }}>
@@ -69,8 +50,17 @@ const MyComponent = () => {
           </Button>
         </Grid>
       </Grid>
+      <div style={{ position: 'absolute' }}>
+        <CircularProgress
+          variant="determinate"
+          value={progress}
+          size={160}
+          thickness={4}
+          color="primary"
+        />
+      </div>
     </div>
   );
 };
 
-export default MyComponent;
+export default App;
