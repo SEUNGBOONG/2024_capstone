@@ -4,7 +4,6 @@ import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import NavigationBar from "./pages/NaviBar";
 import Exercise from "./pages/exercise";
-// import RingImage from "./styles/bt.png";
 import Detail from "./styles/detail.png";
 import { Container, SignupFormContainer, Title } from "./styles/SignupStyle";
 import { Typography } from "@material-ui/core";

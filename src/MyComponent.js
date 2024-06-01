@@ -8,9 +8,9 @@ const App = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      // 시간당 0.0001씩 달성률 증가
+
       setProgress((prevProgress) => (prevProgress >= 100 ? 100 : prevProgress + 0.0001));
-    }, 3600000); // 1시간(3600초)마다 실행
+    }, 3600000); 
 
     return () => {
       clearInterval(timer);
